@@ -3,8 +3,6 @@ import TestToken from 'Embark/contracts/TestToken';
 import React from 'react';
 import { Form, FormGroup, FormControl, HelpBlock, Button } from 'react-bootstrap';
 import ERC20TokenUI from './erc20token';
-import { connect } from 'react-redux';
-import { actions as accountActions } from '../reducers/accounts';
 
 class TestTokenUI extends React.Component {
 
@@ -19,20 +17,18 @@ class TestTokenUI extends React.Component {
       this.setState({amountToMint: e.target.value});
     }
     
-  mint(e){
-    const { addToBalance } = this.props;
+    mint(e){
       e.preventDefault();
   
       var value = parseInt(this.state.amountToMint, 10);
   
       if (EmbarkJS.isNewWeb3()) {
-        TestToken.methods.mint(value).send({from: web3.eth.defaultAccount})
-          .then(r => { addToBalance(value) });
+        TestToken.methods.mint(value).send({from: web3.eth.defaultAccount});
       } else {
-        TestToken.mint(value).send({from: web3.eth.defaultAccount})
-          .then(r => { addToBalance(value) });
+        TestToken.mint(value);
+        this._addToLog("#blockchain", "TestToken.mint(" + value + ")");
       }
-      console.log(TestToken.options.address +".mint("+value+").send({from: " + web3.eth.defaultAccount + "})");
+      this._addToLog(TestToken.options.address +".mint("+value+").send({from: " + web3.eth.defaultAccount + "})");
     }
     
     render(){
@@ -55,10 +51,4 @@ class TestTokenUI extends React.Component {
     }
   }
 
-const mapDispatchToProps = dispatch => ({
-  addToBalance(amount) {
-    dispatch(accountActions.addToErc20TokenBalance(amount));
-  },
-});
-
-export default connect(null, mapDispatchToProps)(TestTokenUI);
+  export default TestTokenUI;
